@@ -1,0 +1,21 @@
+{  
+   "database-creds":{  
+      "host":"localhost",
+      "database":"database",
+      "user":"test",
+      "pass":"test"
+   },
+   "general":{  
+      "box_num":"0"
+   },
+   "users":[  
+      {  
+         "username":"test1",
+         "password":"pass1"
+      },
+      {  
+         "username":"test2",
+         "password":"pass2"
+      }
+   ]
+}
