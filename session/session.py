@@ -43,7 +43,7 @@ def get_access_token(username, password):
     try:
         ticket = re.sub('.*ticket=', '', r1.history[0].headers['Location'])
     except Exception as e:
-        if settings.is_verbose():
+        if settings.DEBUG:
             print('Exception: ', e)
             print(r1.json()['errors'][0])
         return None

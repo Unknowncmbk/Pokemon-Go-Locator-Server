@@ -3,7 +3,7 @@
 # python modules
 import json
 import socket
-#import MySQLdb
+import MySQLdb
 
 # The URL to the Pokemon Login auth
 URL_POKEMON_LOGIN = 'https://sso.pokemon.com/sso/login?service=https%3A%2F%2Fsso.pokemon.com%2Fsso%2Foauth2.0%2FcallbackAuthorize'
@@ -30,7 +30,7 @@ class Settings(object):
         self.db_pass = db_pass
         self.db_name = db_name
 
-        #self.db_cxn = MySQLdb.connect(host=self.db_host, user=self.db_user, passwd=self.db_pass, db=self.db_name)
+        self.db_cxn = MySQLdb.connect(host=self.db_host, user=self.db_user, passwd=self.db_pass, db=self.db_name)
 
     def __str__(self):
         return 'box_num: ' + str(self.box_num) + ', host_ip: ' + str(self.host_ip) + ', db_host: ' + str(db_host) + ', db_user: ' + str(db_user) + ', db_pass: ' + str(db_pass) + ', db_name: ' + str(db_name)

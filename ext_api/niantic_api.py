@@ -50,7 +50,7 @@ def request_data(session_url, session_token, pk_loc, *mehs, **kw):
             p_ret = pokemon_pb2.ResponseEnvelop()
             p_ret.ParseFromString(r.content)
 
-            if settings.is_verbose():
+            if settings.DEBUG:
                 print("REQUEST:")
                 print(p_req)
                 print("Response:")

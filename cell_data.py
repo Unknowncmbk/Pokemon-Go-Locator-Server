@@ -38,6 +38,8 @@ def _get_cell_data(pk_user, pk_loc):
 		# get heartbeat of child location
 		heartbeats.append(niantic_api.get_heartbeat(pk_user.session_url, pk_user.session_token, new_loc, pk_user.profile))
 
+	return heartbeats
+
 def _parse_cell_data(heartbeats):
 	'''
 	Parses the given cell data, getting the pokemon information.
@@ -63,7 +65,7 @@ def _parse_cell_data(heartbeats):
 				for wild in cell.WildPokemon:
 					hash = wild.SpawnPointId + ':' + str(wild.pokemon.PokemonId)
 					if (hash not in seen):
-						visible.append(wild)
+						pokemon.append(wild)
 						seen.add(hash)
 				if cell.Fort:
 					for Fort in cell.Fort:
@@ -100,6 +102,9 @@ def get_area_data(pk_user, pk_loc, max_steps):
 	# origin of the map
 	origin = LatLng.from_degrees(pk_loc.float_lat, pk_loc.float_lng)
 
+	print("Initial lat: ", pk_loc.float_lat)
+	print("Initial lng: ", pk_loc.float_lng)
+
 	# current map information
 	steps = 0
 	steplimit = int(max_steps)
@@ -111,20 +116,30 @@ def get_area_data(pk_user, pk_loc, max_steps):
 
 	while steps < steplimit ** 2:
 
+		print("cell data lat: ", pk_loc.float_lat)
+		print("cell data lng: ", pk_loc.float_lng)
 		# grab all the heart beats for this location
 		heartbeats = _get_cell_data(pk_user, pk_loc)
+		print("heartbeats", heartbeats)
 
-		# parse the data
-		pokemon, gyms, pokestops = _parse_cell_data(heartbeats)
+		if heartbeats is not None and len(heartbeats) > 0:
 
-		# add data to results above
-		res_pokemon.extend(pokemon)
-		res_gym.extend(gyms)
-		res_pokestop.extend(pokestops)
+			# parse the data
+			pokemon, gyms, pokestops = _parse_cell_data(heartbeats)
+
+			# add data to results above
+			if pokemon is not None and len(pokemon) > 0:
+				res_pokemon.extend(pokemon)
+
+			if gyms is not None and len(gyms) > 0:	
+				res_gym.extend(gyms)
+
+			if pokestops is not None and len(pokestops) > 0:
+				res_pokestop.extend(pokestops)
 
 		#Scan location math
 		if (-steplimit/2 < x <= steplimit/2) and (-steplimit/2 < y <= steplimit/2):
-			pk_loc.set_loc_coords((x * 0.0025) + deflat, (y * 0.0025 ) + deflng, 0)
+			pk_loc.set_loc_coords((x * 0.0025) + pk_loc.default_lat, (y * 0.0025 ) + pk_loc.default_lng, 0)
 		if x == y or (x < 0 and x == -y) or (x > 0 and x == 1-y):
 			dx, dy = -dy, dx
 		x, y = x+dx, y+dy
