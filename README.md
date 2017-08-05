@@ -1,5 +1,7 @@
 # Pokemon-Go-Locator-Server
-This repository was designed to service a [client app](TODO), caching the results of the NianticAPI pull requests and storing them locally in the database. This would allow other users to see Pokemon outside of their scan radius, so they can target specific species.
+This repository was designed to service a [client app](https://github.com/Unknowncmbk/poke-go-finder), caching the results of the NianticAPI pull requests and storing them locally in the database. This would allow other users to see Pokemon outside of their scan radius, so they can target specific species.
+
+![alt text](https://github.com/Unknowncmbk/Pokemon-Go-Locator-Server/blob/master/img/pokemon_data.png "Example Image")
 
 ## Requirements
 - Python 2.7+
