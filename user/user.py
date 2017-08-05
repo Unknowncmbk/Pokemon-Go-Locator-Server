@@ -8,6 +8,11 @@ from ext_api import niantic_api
 
 # python modules
 
+'''
+Note: This module serves as a handler of 'users'. A user is someone that requests
+data from the servers.
+'''
+
 class User(object):
 	def __init__(self, username, password):
 		self.username = username

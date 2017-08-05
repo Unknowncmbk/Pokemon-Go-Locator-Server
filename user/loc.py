@@ -9,13 +9,27 @@ import struct
 from geopy.geocoders import GoogleV3
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
+'''
+Note: This module serves as a handler of 'locations'. A location is something
+with a GPS latitude and longitude.
+'''
+
 def f2i(float):
+	'''
+	Converts the specified float to int.
+	'''
 	return struct.unpack('<Q', struct.pack('<d', float))[0]
 
 def f2h(float):
+	'''
+	Converts the specified float to hexidecimal.
+	'''
 	return hex(struct.unpack('<Q', struct.pack('<d', float))[0])
 
 def h2f(hex):
+	'''
+	Converts the specified hexidecimal to float.
+	'''
 	return struct.unpack('<d', struct.pack('<Q', int(hex, 16)))[0]
 
 class Location(object):
@@ -78,8 +92,6 @@ class Location(object):
 
 				print('[!] Your given location: {}'.format(loc.address.encode('utf-8')))
 				print('[!] lat/long/alt: {} {} {}'.format(loc.latitude, loc.longitude, loc.altitude))
-				global deflat
-				global deflng
 
 				self.default_lat = loc.latitude
 				self.default_lng = loc.longitude

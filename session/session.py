@@ -7,6 +7,11 @@ from settings import settings
 import requests
 import json
 import re
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.adapters import ConnectionError
+from requests.models import InvalidURL
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # session object for niantic
 SESSION = requests.session()

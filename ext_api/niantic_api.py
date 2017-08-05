@@ -57,12 +57,12 @@ def request_data(session_url, session_token, pk_loc, *mehs, **kw):
                 print(p_ret)
                 print("\n\n")
 
-            time.sleep(2)
+            time.sleep(0.7)
             return p_ret
         except Exception, e:
-            if settings.DEBUG:
-                print('Exception occurred in niantic_api.py#request_data()')
-                print(e)
+            #if settings.DEBUG:
+            print('Exception occurred in niantic_api.py#request_data()')
+            print(e)
             return None
 
         tries = tries - 1
@@ -157,7 +157,7 @@ def get_heartbeat(api_endpoint, access_token, pk_loc, response):
         pokemon_pb2.RequestEnvelop.Requests(),
         m5)
 
-    if response is None:
+    if response is None or response.payload is None or len(response.payload) == 0:
         return
 
     payload = response.payload[0]

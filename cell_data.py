@@ -2,10 +2,64 @@
 
 # local imports
 from ext_api import niantic_api
+from settings import settings
 from user import loc
 
 # python modules
 from s2sphere import *
+
+'''
+Note: This module contains methods that help gather cell information. Specifically, 
+this module is used to get an area around a location, grab the data, and parse it.
+'''
+
+def get_radius_locs(pk_loc, max_steps):
+	'''
+	Get a list of locations around the initial location, within max steps.
+
+	Args:
+		pk_loc: The initial location to query
+		max_steps: The step radius to query
+
+	Returns:
+		A list of locations where each location is a GPS coordinate that needs queried.
+	'''
+
+	# the result to return
+	locs = []
+
+	# origin of the map
+	origin = LatLng.from_degrees(pk_loc.float_lat, pk_loc.float_lng)
+
+	# current map information
+	steps = 0
+	steplimit = int(max_steps)
+	pos = 1
+	x   = 0
+	y   = 0
+	dx  = 0
+	dy  = -1
+
+	def_lat = pk_loc.default_lat
+	def_lng = pk_loc.default_lng
+
+	while steps < steplimit ** 2:
+
+		# create new location
+		l = loc.Location()
+
+		#Scan location math
+		if (-steplimit/2 < x <= steplimit/2) and (-steplimit/2 < y <= steplimit/2):
+			l.set_loc_coords((x * 0.0025) + def_lat, (y * 0.0025 ) + def_lng, 0)
+		if x == y or (x < 0 and x == -y) or (x > 0 and x == 1-y):
+			dx, dy = -dy, dx
+		x, y = x+dx, y+dy
+		steps +=1
+
+		locs.append(l)
+
+	return locs
+
 
 def _get_cell_data(pk_user, pk_loc):
 	'''
@@ -79,15 +133,13 @@ def _parse_cell_data(heartbeats):
 	
 	return pokemon, gyms, pokestops
 
-def get_area_data(pk_user, pk_loc, max_steps):
+def get_area_data(pk_user, pk_loc):
 	'''
-	Get all the pokemon data for the specific location and max steps around
-	that location.
+	Get all the pokemon data for the specific location.
 
 	Args:
 		pk_user: The user requesting the pokemon
 		pk_loc: The location object
-		steps: The amount of steps to take outwards from this location
 
 	Returns:
 		A tuple of (pokemon, gyms, pokestops) where each element in
@@ -99,52 +151,23 @@ def get_area_data(pk_user, pk_loc, max_steps):
 	res_gym = []
 	res_pokestop = []
 
-	# origin of the map
-	origin = LatLng.from_degrees(pk_loc.float_lat, pk_loc.float_lng)
+	# grab all the heart beats for this location
+	heartbeats = _get_cell_data(pk_user, pk_loc)
 
-	print("Initial lat: ", pk_loc.float_lat)
-	print("Initial lng: ", pk_loc.float_lng)
+	if heartbeats is not None and len(heartbeats) > 0:
 
-	# current map information
-	steps = 0
-	steplimit = int(max_steps)
-	pos = 1
-	x   = 0
-	y   = 0
-	dx  = 0
-	dy  = -1
+		# parse the data
+		pokemon, gyms, pokestops = _parse_cell_data(heartbeats)
 
-	while steps < steplimit ** 2:
+		# add data to results above
+		if pokemon is not None and len(pokemon) > 0:
+			res_pokemon.extend(pokemon)
 
-		print("cell data lat: ", pk_loc.float_lat)
-		print("cell data lng: ", pk_loc.float_lng)
-		# grab all the heart beats for this location
-		heartbeats = _get_cell_data(pk_user, pk_loc)
-		print("heartbeats", heartbeats)
+		if gyms is not None and len(gyms) > 0:	
+			res_gym.extend(gyms)
 
-		if heartbeats is not None and len(heartbeats) > 0:
-
-			# parse the data
-			pokemon, gyms, pokestops = _parse_cell_data(heartbeats)
-
-			# add data to results above
-			if pokemon is not None and len(pokemon) > 0:
-				res_pokemon.extend(pokemon)
-
-			if gyms is not None and len(gyms) > 0:	
-				res_gym.extend(gyms)
-
-			if pokestops is not None and len(pokestops) > 0:
-				res_pokestop.extend(pokestops)
-
-		#Scan location math
-		if (-steplimit/2 < x <= steplimit/2) and (-steplimit/2 < y <= steplimit/2):
-			pk_loc.set_loc_coords((x * 0.0025) + pk_loc.default_lat, (y * 0.0025 ) + pk_loc.default_lng, 0)
-		if x == y or (x < 0 and x == -y) or (x > 0 and x == 1-y):
-			dx, dy = -dy, dx
-		x, y = x+dx, y+dy
-		steps +=1
-		print("Completed:", ((steps + (pos * .25) - .25) / steplimit**2) * 100, "%")
+		if pokestops is not None and len(pokestops) > 0:
+			res_pokestop.extend(pokestops)
 
 	return res_pokemon, res_gym, res_pokestop
 
